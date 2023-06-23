@@ -8,33 +8,35 @@ class AlbumsService {
 
   // add album
   addAlbum({ name, year }) {
-    const id = nanoid(16);
+    const prefixAlbumId = 'album-';
+    const id = prefixAlbumId + nanoid(16);
+    const albumId = id;
 
     const newAlbum = { id, name, year };
 
     // push newAlbum
     this.albums.push(newAlbum);
 
-    const isSuccess = this.albums.filter((album) => album.id === id).length > 0;
+    const isSuccess = this.albums.filter((album) => album.id === albumId).length > 0;
 
     if (!isSuccess) {
       throw new NotFoundError('Album gagal ditambahkan');
     }
-    return id;
+    return albumId;
   }
 
   // get album by id
-  getAlbumById(id) {
-    const album = this.albums.filter((n) => n.id === id)[0];
-    if (!album) {
+  getAlbumById(albumId) {
+    const filteredAlbumId = this.albums.filter((album) => album.id === albumId)[0];
+    if (!filteredAlbumId) {
       throw new NotFoundError('Album tidak ditemukan');
     }
-    return album;
+    return filteredAlbumId;
   }
 
   // edit album by id
-  editAlbumById(id, { name, year }) {
-    const index = this.albums.findIndex((album) => album.id === id);
+  editAlbumById(albumId, { name, year }) {
+    const index = this.albums.findIndex((album) => album.id === albumId);
 
     if (index === -1) {
       throw new NotFoundError('Album tidak ditemukan');
@@ -48,8 +50,8 @@ class AlbumsService {
   }
 
   // delete album by id
-  deleteAlbumById(id) {
-    const index = this.albums.findIndex((album) => album.id === id);
+  deleteAlbumById(albumId) {
+    const index = this.albums.findIndex((album) => album.id === albumId);
 
     if (index === -1) {
       throw new NotFoundError('Album tidak ditemukan');
