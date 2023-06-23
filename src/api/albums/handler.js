@@ -8,7 +8,7 @@ class AlbumsHandler {
     autoBind(this);
   }
 
-  // post handler
+  // post album handler
   async postAlbumHandler(request, h) {
     this.validator.validateAlbumPayload(request.payload);
 
@@ -22,12 +22,11 @@ class AlbumsHandler {
         albumId,
       },
     });
-
     response.code(201);
     return response;
   }
 
-  // get handler
+  // get album by id handler
   async getAlbumByIdHandler(request) {
     this.validator.validateAlbumPayload(request.payload);
     const { id } = request.params;
