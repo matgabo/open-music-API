@@ -35,10 +35,32 @@ class SongsService {
     return result.rows.map(mapDBToModelSong)[0].id;
   }
 
-  // get all songs
-  async getSongs() {
-    const result = await this.pool.query('SELECT id, title, performer FROM songs');
-    return result.rows.map(mapDBToModelSong);
+  // get songs
+  async getSongs(request) {
+    const { title, performer } = request.query;
+
+    // get all songs
+    let filteredSongs = await this.pool.query('SELECT id, title, performer FROM songs');
+
+    // change song query into specific song title
+    if (title !== undefined) {
+      const query = {
+        text: 'SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE $1',
+        values: [`%${title.toLowerCase()}%`],
+      };
+      filteredSongs = await this.pool.query(query);
+    }
+
+    // change song query into specific song performer
+    if (performer !== undefined) {
+      const query = {
+        text: 'SELECT id, title, performer FROM songs WHERE LOWER(performer) LIKE $1',
+        values: [`%${performer.toLowerCase()}%`],
+      };
+      filteredSongs = await this.pool.query(query);
+    }
+
+    return filteredSongs.rows.map(mapDBToModelSong);
   }
 
   // get song by id
