@@ -1,4 +1,5 @@
 // create tables with pgm
+
 exports.up = (pgm) => {
   // create albums table
   pgm.createTable('albums', {
