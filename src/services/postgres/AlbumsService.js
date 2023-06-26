@@ -29,8 +29,19 @@ class AlbumsService {
 
   // get album by id
   async getAlbumById(albumId) {
+    // query for album details and associated songs
     const query = {
-      text: 'SELECT id, name, year FROM albums WHERE id = $1',
+      text: `
+        SELECT 
+          album.id AS album_id, album.name AS album_name, album.year AS album_year,
+          song.id AS song_id, song.title AS song_title, song.performer AS song_performer
+        FROM
+          albums AS album
+        LEFT JOIN
+          songs AS song ON album.id = song.album_id
+        WHERE
+          album.id = $1
+      `,
       values: [albumId],
     };
 
@@ -41,7 +52,29 @@ class AlbumsService {
       throw new NotFoundError('Album tidak ditemukan');
     }
 
-    return result.rows[0];
+    // album details
+    const album = {
+      id: result.rows[0].album_id,
+      name: result.rows[0].album_name,
+      year: result.rows[0].album_year,
+      songs: [],
+    };
+
+    // songs associated with the album
+    const songs = result.rows
+      .filter((row) => row.song_id !== null)
+      .map((row) => ({
+        id: row.song_id,
+        title: row.song_title,
+        performer: row.song_performer,
+      }));
+
+    // add songs to the album only if there are any
+    if (songs.length > 0) {
+      album.songs = songs;
+    }
+
+    return album;
   }
 
   // edit album by id
