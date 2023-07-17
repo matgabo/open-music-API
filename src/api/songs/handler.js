@@ -8,7 +8,6 @@ class SongsHandler {
     autoBind(this);
   }
 
-  // post handler
   async postSongHandler(request, h) {
     this.validator.validateSongPayload(request.payload);
 
@@ -40,7 +39,6 @@ class SongsHandler {
     return response;
   }
 
-  // get handler
   async getSongsHandler(request) {
     const songs = await this.service.getSongs(request);
     return {
@@ -51,7 +49,6 @@ class SongsHandler {
     };
   }
 
-  // get by id handler
   async getSongByIdHandler(request) {
     this.validator.validateSongPayload(request.payload);
     const { id } = request.params;
@@ -64,7 +61,6 @@ class SongsHandler {
     };
   }
 
-  // put handler
   async putSongByIdHandler(request) {
     this.validator.validateSongPayload(request.payload);
 
@@ -78,7 +74,6 @@ class SongsHandler {
     };
   }
 
-  // delete handler
   async deleteSongByIdHandler(request, h) {
     const { id } = request.params;
 

@@ -9,7 +9,6 @@ class SongsService {
     this.pool = new Pool();
   }
 
-  // add song
   async addSong({
     title,
     year,
@@ -27,7 +26,6 @@ class SongsService {
 
     const result = await this.pool.query(query);
 
-    // check if song is added
     if (!result.rows[0].id) {
       throw new InvariantError('Lagu gagal ditambahkan');
     }
@@ -35,14 +33,11 @@ class SongsService {
     return result.rows.map(mapDBToModelSong)[0].id;
   }
 
-  // get songs
   async getSongs(request) {
     const { title, performer } = request.query;
 
-    // get all songs
     let filteredSongs = await this.pool.query('SELECT id, title, performer FROM songs');
 
-    // change song query into specific song title
     if (title !== undefined) {
       const query = {
         text: 'SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE $1',
@@ -51,7 +46,6 @@ class SongsService {
       filteredSongs = await this.pool.query(query);
     }
 
-    // change song query into specific song performer
     if (performer !== undefined) {
       const query = {
         text: 'SELECT id, title, performer FROM songs WHERE LOWER(performer) LIKE $1',
@@ -63,7 +57,6 @@ class SongsService {
     return filteredSongs.rows.map(mapDBToModelSong);
   }
 
-  // get song by id
   async getSongById(songId) {
     const query = {
       text: 'SELECT * FROM songs WHERE id = $1',
@@ -72,7 +65,6 @@ class SongsService {
 
     const result = await this.pool.query(query);
 
-    // check if song is found
     if (!result.rows.length) {
       throw new NotFoundError('Lagu tidak ditemukan');
     }
@@ -80,7 +72,6 @@ class SongsService {
     return result.rows.map(mapDBToModelSong)[0];
   }
 
-  // edit song by id
   async editSongById(songId, {
     title,
     year,
@@ -96,7 +87,6 @@ class SongsService {
 
     const result = await this.pool.query(query);
 
-    // check if song is found
     if (!result.rows.length) {
       throw new NotFoundError('Gagal memperbarui lagu. Id tidak ditemukan');
     }
@@ -110,7 +100,6 @@ class SongsService {
 
     const result = await this.pool.query(query);
 
-    // check if song is found
     if (!result.rows.length) {
       throw new NotFoundError('Lagu gagal dihapus. Id tidak ditemukan');
     }

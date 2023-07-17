@@ -8,7 +8,6 @@ class AlbumsService {
     this.pool = new Pool();
   }
 
-  // add album
   async addAlbum({ name, year }) {
     const albumId = `album-${nanoid(16)}`;
 
@@ -19,7 +18,6 @@ class AlbumsService {
 
     const result = await this.pool.query(query);
 
-    // check if album is added
     if (!result.rows[0].id) {
       throw new InvariantError('Album gagal ditambahkan');
     }
@@ -27,9 +25,7 @@ class AlbumsService {
     return result.rows[0].id;
   }
 
-  // get album by id
   async getAlbumById(albumId) {
-    // query for album details and associated songs
     const query = {
       text: `
         SELECT 
@@ -47,37 +43,26 @@ class AlbumsService {
 
     const result = await this.pool.query(query);
 
-    // check if album is found
     if (!result.rows.length) {
       throw new NotFoundError('Album tidak ditemukan');
     }
 
-    // album details
     const album = {
       id: result.rows[0].album_id,
       name: result.rows[0].album_name,
       year: result.rows[0].album_year,
-      songs: [],
-    };
-
-    // songs associated with the album
-    const songs = result.rows
-      .filter((row) => row.song_id !== null)
-      .map((row) => ({
-        id: row.song_id,
-        title: row.song_title,
-        performer: row.song_performer,
-      }));
-
-    // add songs to the album only if there are any
-    if (songs.length > 0) {
-      album.songs = songs;
+      songs: result.rows
+              .filter((row) => row.song_id !== null)
+              .map((row) => ({
+                    id: row.song_id,
+                    title: row.song_title,
+                    performer: row.song_performer,
+              })),
     }
 
     return album;
   }
 
-  // edit album by id
   async editAlbumById(albumId, { name, year }) {
     const query = {
       text: 'UPDATE albums SET name = $2, year = $3 WHERE id = $1 RETURNING id',
@@ -86,13 +71,11 @@ class AlbumsService {
 
     const result = await this.pool.query(query);
 
-    // check if album is found
     if (!result.rows.length) {
       throw new NotFoundError('Gagal memperbarui album. Id tidak ditemukan');
     }
   }
 
-  // delete album by id
   async deleteAlbumById(albumId) {
     const query = {
       text: 'DELETE FROM albums WHERE id = $1 RETURNING id',
@@ -101,7 +84,6 @@ class AlbumsService {
 
     const result = await this.pool.query(query);
 
-    // check if album is found
     if (!result.rows.length) {
       throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan');
     }
