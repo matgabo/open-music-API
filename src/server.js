@@ -1,16 +1,25 @@
 require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
+
 const albums = require('./api/albums');
-const songs = require('./api/songs');
 const AlbumsService = require('./services/postgres/AlbumsService');
+const AlbumsValidator = require('./validator/albums');
+
+const songs = require('./api/songs');
 const SongsService = require('./services/postgres/SongsService');
+const SongsValidator = require('./validator/songs');
+
+const users = require('./api/users');
+const UsersService = require('./services/postgres/UsersService');
+const UsersValidator = require('./validator/users');
+
 const ClientError = require('./exceptions/ClientError');
-const { AlbumsValidator, SongsValidator } = require('./validator');
 
 const init = async () => {
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
+  const usersService = new UsersService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -22,7 +31,6 @@ const init = async () => {
     },
   });
 
-  // register with albums and songs plugin
   await server.register([
     {
       plugin: albums,
@@ -38,14 +46,18 @@ const init = async () => {
         validator: SongsValidator,
       },
     },
-
+    {
+      plugin: users,
+      options: {
+        service: usersService,
+        validator: UsersValidator,
+      },
+    },
   ]);
 
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
-    // set error
     if (response instanceof Error) {
-      // set ClientError
       if (response instanceof ClientError) {
         const newResponse = h.response({
           status: 'fail',
@@ -55,12 +67,10 @@ const init = async () => {
         return newResponse;
       }
 
-      // native error from hapi
       if (!response.isServer) {
         return h.continue;
       }
 
-      // server error
       const newResponse = h.response({
         status: 'error',
         message: 'terjadi kegagalan pada server kami',
@@ -69,7 +79,6 @@ const init = async () => {
       return newResponse;
     }
 
-    // set success
     return h.continue;
   });
 
