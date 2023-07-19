@@ -52,13 +52,13 @@ class AlbumsService {
       name: result.rows[0].album_name,
       year: result.rows[0].album_year,
       songs: result.rows
-              .filter((row) => row.song_id !== null)
-              .map((row) => ({
-                    id: row.song_id,
-                    title: row.song_title,
-                    performer: row.song_performer,
-              })),
-    }
+        .filter((row) => row.song_id !== null)
+        .map((row) => ({
+          id: row.song_id,
+          title: row.song_title,
+          performer: row.song_performer,
+        })),
+    };
 
     return album;
   }
