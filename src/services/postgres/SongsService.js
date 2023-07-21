@@ -72,6 +72,36 @@ class SongsService {
     return result.rows.map(mapDBToModelSong)[0];
   }
 
+  async getSongsByAlbumId(albumId) {
+    const query = {
+      text: 'SELECT * FROM songs WHERE album_id = $1',
+      values: [albumId],
+    };
+
+    const result = await this.pool.query(query);
+
+    const songs = result.rows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      performer: row.performer,
+    }));
+
+    return songs;
+  }
+
+  async verifySongExistence(songId) {
+    const query = {
+      text: 'SELECT * FROM songs WHERE id = $1',
+      values: [songId],
+    };
+
+    const results = await this.pool.query(query);
+
+    if (!results.rows.length) {
+      throw new NotFoundError('Lagu tidak ditemukan');
+    }
+  }
+
   async editSongById(songId, {
     title,
     year,

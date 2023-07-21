@@ -1,19 +1,4 @@
 exports.up = (pgm) => {
-  pgm.createTable('albums', {
-    id: {
-      type: 'VARCHAR(50)',
-      primaryKey: true,
-    },
-    name: {
-      type: 'TEXT',
-      notNull: true,
-    },
-    year: {
-      type: 'INTEGER',
-      notNull: true,
-    },
-  });
-
   pgm.createTable('songs', {
     id: {
       type: 'VARCHAR(50)',
@@ -40,14 +25,19 @@ exports.up = (pgm) => {
     },
     album_id: {
       type: 'VARCHAR(50)',
+    },
+  });
+
+  pgm.addConstraint('songs', 'fk_songs_album_id', {
+    foreignKeys: {
+      columns: 'album_id',
       references: 'albums(id)',
-      onDelete: 'CASCADE',
+      onDelete: 'cascade',
     },
   });
 };
 
-// delete tables
 exports.down = (pgm) => {
-  pgm.dropTable('albums');
+  pgm.dropConstraint('songs', 'fk_songs_album_id');
   pgm.dropTable('songs');
 };
