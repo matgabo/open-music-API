@@ -2,11 +2,10 @@ const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 
 const InvariantError = require('../../exceptions/InvariantError');
-const NotFoundError = require('../../exceptions/NotFoundError');
 
 class PlaylistSongsService {
   constructor() {
-    this.pool = new Pool();
+    this._pool = new Pool();
   }
 
   async addSongToPlaylist(playlistId, songId) {
@@ -17,7 +16,7 @@ class PlaylistSongsService {
       values: [id, playlistId, songId],
     };
 
-    const results = await this.pool.query(query);
+    const results = await this._pool.query(query);
 
     if (!results.rows.length) {
       throw new InvariantError('Lagu gagal ditambahkan ke playlist');
@@ -35,14 +34,14 @@ class PlaylistSongsService {
         songs.performer
       FROM
         songs
-      INNER JOIN
+      LEFT JOIN
         playlist_songs ON songs.id = playlist_songs.song_id
       WHERE
         playlist_songs.playlist_id = $1`,
       values: [playlistId],
     };
 
-    const results = await this.pool.query(query);
+    const results = await this._pool.query(query);
 
     const songs = results.rows.map((row) => ({
       id: row.id,
@@ -59,23 +58,10 @@ class PlaylistSongsService {
       values: [playlistId, songId],
     };
 
-    const results = await this.pool.query(query);
+    const results = await this._pool.query(query);
 
     if (!results.rows.length) {
       throw new InvariantError('Lagu gagal dihapus dari playlist');
-    }
-  }
-
-  async verifyPlaylistSongExistence(playlistId) {
-    const query = {
-      text: 'SELECT song_id FROM playlist_songs WHERE playlist_id = $1',
-      values: [playlistId],
-    };
-
-    const results = await this.pool.query(query);
-
-    if (!results.rows.length) {
-      throw new NotFoundError('Lagu tidak ditemukan pada playlist');
     }
   }
 }

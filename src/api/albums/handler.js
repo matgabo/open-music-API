@@ -2,17 +2,17 @@ const autoBind = require('auto-bind');
 
 class AlbumsHandler {
   constructor(albumsService, songsService, validator) {
-    this.albumsService = albumsService;
-    this.songsService = songsService;
-    this.validator = validator;
+    this._albumsService = albumsService;
+    this._songsService = songsService;
+    this._validator = validator;
 
     autoBind(this);
   }
 
   async postAlbumHandler(request, h) {
-    this.validator.validateAlbumPayload(request.payload);
+    this._validator.validateAlbumPayload(request.payload);
 
-    const albumId = await this.albumsService.addAlbum(request.payload);
+    const albumId = await this._albumsService.addAlbum(request.payload);
 
     const response = h.response({
       status: 'success',
@@ -25,11 +25,11 @@ class AlbumsHandler {
   }
 
   async getAlbumByIdHandler(request) {
-    this.validator.validateAlbumPayload(request.payload);
+    this._validator.validateAlbumPayload(request.payload);
 
     const { id } = request.params;
-    const albumDetails = await this.albumsService.getAlbumById(id);
-    const songs = await this.songsService.getSongsByAlbumId(id);
+    const albumDetails = await this._albumsService.getAlbumById(id);
+    const songs = await this._songsService.getSongsByAlbumId(id);
 
     return {
       status: 'success',
@@ -43,10 +43,10 @@ class AlbumsHandler {
   }
 
   async putAlbumByIdHandler(request) {
-    this.validator.validateAlbumPayload(request.payload);
+    this._validator.validateAlbumPayload(request.payload);
     const { id } = request.params;
 
-    await this.albumsService.editAlbumById(id, request.payload);
+    await this._albumsService.editAlbumById(id, request.payload);
 
     return {
       status: 'success',
@@ -56,7 +56,7 @@ class AlbumsHandler {
 
   async deleteAlbumByIdHandler(request) {
     const { id } = request.params;
-    await this.albumsService.deleteAlbumById(id);
+    await this._albumsService.deleteAlbumById(id);
     return {
       status: 'success',
       message: 'Album berhasil dihapus',

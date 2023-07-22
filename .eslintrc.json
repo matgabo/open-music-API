@@ -13,6 +13,6 @@
     "rules": {
     "camelcase":"warn",
     "no-console":"warn",
-    "no-underscore-dangle":"warn"
+    "no-underscore-dangle":"off"
     }
 }

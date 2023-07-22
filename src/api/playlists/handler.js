@@ -2,19 +2,19 @@ const autoBind = require('auto-bind');
 
 class PlaylistsHandler {
   constructor(service, validator) {
-    this.service = service;
-    this.validator = validator;
+    this._service = service;
+    this._validator = validator;
 
     autoBind(this);
   }
 
   async postPlaylistHandler(request, h) {
-    this.validator.validatePlaylistPayload(request.payload);
+    this._validator.validatePlaylistPayload(request.payload);
 
     const { name } = request.payload;
     const { id: credentialId } = request.auth.credentials;
 
-    const playlistId = await this.service.addPlaylist({
+    const playlistId = await this._service.addPlaylist({
       name, owner: credentialId,
     });
 
@@ -31,7 +31,7 @@ class PlaylistsHandler {
 
   async getPlaylistsHandler(request) {
     const { id: credentialId } = request.auth.credentials;
-    const playlists = await this.service.getPlaylists(credentialId);
+    const playlists = await this._service.getPlaylists(credentialId);
 
     return {
       status: 'success',
@@ -45,8 +45,8 @@ class PlaylistsHandler {
     const { playlistId } = request.params;
     const { id: credentialId } = request.auth.credentials;
 
-    await this.service.verifyPlaylistOwner(playlistId, credentialId);
-    await this.service.deletePlaylistById(playlistId);
+    await this._service.verifyPlaylistOwner(playlistId, credentialId);
+    await this._service.deletePlaylistById(playlistId);
 
     return {
       status: 'success',
