@@ -11,7 +11,7 @@ class PlaylistsService {
     this._collaborationsService = collaborationsService;
   }
 
-  async addPlaylist({ name, owner }) {
+  async addPlaylist(name, owner) {
     const id = `playlist-${nanoid(16)}`;
 
     const query = {
@@ -128,15 +128,18 @@ class PlaylistsService {
       if (error instanceof AuthorizationError) {
         throw error;
       }
+
       const query = {
         text: 'SELECT * FROM playlists WHERE id = $1',
         values: [playlistId],
       };
+
       const result = await this._pool.query(query);
 
       if (!result.rows.length) {
         throw new NotFoundError('Playlist tidak ditemukan');
       }
+
       const playlist = result.rows[0];
 
       if (playlist.owner !== userId) {
