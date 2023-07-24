@@ -18,9 +18,9 @@ class PlaylistSongsService {
       values: [id, playlistId, songId],
     };
 
-    const results = await this._pool.query(query);
+    const result = await this._pool.query(query);
 
-    if (!results.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('Lagu gagal ditambahkan ke playlist');
     }
 
@@ -31,7 +31,7 @@ class PlaylistSongsService {
       method,
     );
 
-    return results.rows[0].id;
+    return result.rows[0].id;
   }
 
   async getSongsInPlaylist(playlistId) {
@@ -67,9 +67,9 @@ class PlaylistSongsService {
       values: [playlistId, songId],
     };
 
-    const results = await this._pool.query(query);
+    const result = await this._pool.query(query);
 
-    if (!results.rows.length) {
+    if (!result.rowCount) {
       throw new InvariantError('Lagu gagal dihapus dari playlist');
     }
 
@@ -89,7 +89,7 @@ class PlaylistSongsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('Lagu tidak ditemukan');
     }
   }
