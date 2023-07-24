@@ -27,11 +27,7 @@ const SongPayloadSchema = Joi.object({
   }),
   duration: Joi.number()
     .integer()
-    .min(0)
-    .required()
     .messages({
-      'any.required': 'Durasi lagu harus terisi',
-      'number.min': 'Durasi lagu tidak boleh kurang dari 0',
       'number.integer': 'Pengisian durasi lagu tidak benar. Contoh: 120',
       'number.base': 'Pengisian durasi lagu tidak benar. Contoh: 120',
     }),

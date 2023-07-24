@@ -18,10 +18,10 @@ exports.up = (pgm) => {
     },
     genre: {
       type: 'TEXT',
+      notNull: true,
     },
     duration: {
       type: 'INTEGER',
-      notNull: true,
     },
     album_id: {
       type: 'VARCHAR(50)',

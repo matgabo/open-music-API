@@ -1,6 +1,7 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 
+const NotFoundError = require('../../exceptions/NotFoundError');
 const InvariantError = require('../../exceptions/InvariantError');
 
 class PlaylistSongsService {
@@ -20,7 +21,7 @@ class PlaylistSongsService {
     const results = await this._pool.query(query);
 
     if (!results.rows.length) {
-      throw new InvariantError('Lagu gagal ditambahkan ke playlist');
+      throw new NotFoundError('Lagu gagal ditambahkan ke playlist');
     }
 
     await this._playlistSongActivitiesService.addPlaylistSongActivities(
@@ -78,6 +79,19 @@ class PlaylistSongsService {
       userId,
       method,
     );
+  }
+
+  async verifySongExistence(songId) {
+    const query = {
+      text: 'SELECT * FROM songs WHERE id = $1',
+      values: [songId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Lagu tidak ditemukan');
+    }
   }
 }
 
