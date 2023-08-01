@@ -4,9 +4,10 @@ const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 
 class UserAlbumLikesService {
-  constructor(albumsService) {
+  constructor(albumsService, cacheService) {
     this._pool = new Pool();
     this._albumsService = albumsService;
+    this._cacheService = cacheService;
   }
 
   async addUserAlbumLike(userId, albumId) {
@@ -15,8 +16,7 @@ class UserAlbumLikesService {
     const query = {
       text: `
       INSERT INTO user_album_likes (id, user_id, album_id) 
-      VALUES ($1, $2, $3)
-      RETURNING id`,
+      VALUES ($1, $2, $3)`,
       values: [id, userId, albumId],
     };
 
@@ -27,21 +27,30 @@ class UserAlbumLikesService {
     if (!result.rowCount) {
       throw new NotFoundError('Gagal menambahkan like. Album tidak ditemukan');
     }
+
+    await this._cacheService.delete(`user-album-likes:${albumId}`);
   }
 
   async getUserAlbumLikes(albumId) {
-    const query = {
-      text: 'SELECT * FROM user_album_likes WHERE album_id = $1',
-      values: [albumId],
-    };
+    try {
+      const result = await this._cacheService.get(`user-album-likes:${albumId}`);
+      return [JSON.parse(result), true];
+    } catch (error) {
+      const query = {
+        text: 'SELECT * FROM user_album_likes WHERE album_id = $1',
+        values: [albumId],
+      };
 
-    const result = await this._pool.query(query);
+      const result = await this._pool.query(query);
 
-    if (!result.rowCount) {
-      throw new NotFoundError('Gagal mendapatkan like. Album tidak ditemukan');
+      if (!result.rowCount) {
+        throw new NotFoundError('Gagal mendapatkan like. Album tidak ditemukan');
+      }
+
+      await this._cacheService.set(`user-album-likes:${albumId}`, JSON.stringify(result.rowCount));
+
+      return [result.rowCount, false];
     }
-
-    return result.rowCount;
   }
 
   async deleteUserAlbumLike(userId, albumId) {
@@ -55,6 +64,8 @@ class UserAlbumLikesService {
     if (!result.rowCount) {
       throw new NotFoundError('Gagal menghapus like. Album tidak ditemukan');
     }
+
+    await this._cacheService.delete(`user-album-likes:${albumId}`);
   }
 
   async verifyUserAlbumLike(userId, albumId) {
