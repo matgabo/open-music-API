@@ -73,19 +73,13 @@ class SongsService {
 
   async getSongsByAlbumId(albumId) {
     const query = {
-      text: 'SELECT * FROM songs WHERE album_id = $1',
+      text: 'SELECT songs.id, songs.title, songs.performer FROM songs WHERE album_id = $1',
       values: [albumId],
     };
 
     const result = await this._pool.query(query);
 
-    const songs = result.rows.map((row) => ({
-      id: row.id,
-      title: row.title,
-      performer: row.performer,
-    }));
-
-    return songs;
+    return result.rows;
   }
 
   async editSongById(songId, {
